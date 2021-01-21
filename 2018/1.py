@@ -1,14 +1,22 @@
-data = [int(x) for x in open('input.txt').readlines()]
-print(sum(data))
-frecuencies = set()
-current = 0
-frecuencies.add(current)
-twiceNotFound = True
-while twiceNotFound:
-    for i in data:
-        current = current+i
-        if current in frecuencies:
-            twiceNotFound = False
-            break
-        frecuencies.add(current)
-print(current)
+def part_1():
+    return sum(data)
+
+
+def part_2():
+    frecuencies = set()
+    frecuency = 0
+    again = True
+    while again:
+        for i in data:
+            frecuency += i
+            if frecuency in frecuencies:
+                again = False
+                break
+            frecuencies.add(frecuency)
+    return frecuency
+
+
+data = [int(x) for x in open("input.txt").readlines()]
+
+
+print(f"Silver: {part_1()}\nGold: {part_2()}")

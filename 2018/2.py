@@ -1,30 +1,32 @@
-from collections import Counter
-data = [str(x) for x in open('input.txt').readlines()]
-twice = 0
-three = 0
-for word in data:
-    cnt = Counter()
-    for letter in word:
-        cnt[letter] += 1
-    if 2 in list(cnt.values()):
-        twice += 1
-    if 3 in list(cnt.values()):
-        three += 1
+from collections import defaultdict
 
-print(twice*three)
 
-while data != []:
-    word1 = data.pop()
+def part_1():
+    twice = thrice = 0
     for word in data:
-        diff = 0
-        index= 0
-        for i in range(0,len(word)):
-            if diff > 1:
-                break
-            elif word[i] != word1[i]:
-                diff += 1
-                index = i
-        if diff == 1:
-            print(word[:index]+word[index+1:])            
-            data = []
-            break
+        cnt = defaultdict(int)
+        for letter in word:
+            cnt[letter] += 1
+        twice += int(2 in cnt.values())
+        thrice += int(3 in cnt.values())
+    return twice * thrice
+
+
+def part_2():
+    while data:
+        removed = data.pop()
+        for word in data:
+            diff = index = 0
+            for key, val in enumerate(word):
+                if diff > 1:
+                    break
+                if val != removed[key]:
+                    diff += 1
+                    index = key
+            if diff == 1:
+                return word[:index] + word[index + 1 :]
+
+
+data = [str(x) for x in open("input.txt").readlines()]
+
+print(f"Silver: {part_1()}\nGold: {part_2()}")
