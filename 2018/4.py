@@ -1,60 +1,78 @@
 import numpy as np
+import re
+from collections import defaultdict
 from datetime import datetime, timedelta
+from operator import attrgetter
+
+
+class Guard:
+    def __init__(self, id):
+        self.id = id
+        self.sleeping_time = 0
+        self.started_time = None
+        self.history = []
+        self.most_sleeping_minute = 0
+        self.most_sleeping_frecuency = 0
+
+    def sleep(self, time):
+        self.started_time = time
+
+    def wake(self, time):
+        curr_sleeping_time = int((time - self.started_time).seconds / 60)
+        self.sleeping_time += curr_sleeping_time
+        self.history.append([self.started_time.minute, curr_sleeping_time])
+
+    def calculate_sleeping_minute(self):
+        watch = {i: 0 for i in range(0, 60)}
+        for [minute, sleep_time] in self.history:
+            for m in range(minute, minute + sleep_time):
+                watch[m] += 1
+
+        minute = max(watch.keys(), key=lambda x: watch[x])
+        self.most_sleeping_minute = minute
+        self.most_sleeping_frecuency = watch[minute]
+
+
+def part_1():
+    last_guard = None
+    for record in data:
+        if record["guard"]:
+            last_guard = guards[record["guard"].id]
+        elif record["sleep"]:
+            last_guard.sleep(record["time"])
+        elif record["wake"]:
+            last_guard.wake(record["time"])
+
+    guard = max(guards.values(), key=attrgetter("sleeping_time"))
+    guard.calculate_sleeping_minute()
+    return guard.id * guard.most_sleeping_minute
+
+
+def part_2():
+    for guard in guards.values():
+        guard.calculate_sleeping_minute()
+    guard = max(guards.values(), key=lambda x: x.most_sleeping_frecuency)
+    return guard.id * guard.most_sleeping_minute
+
+
 data = []
-for x in open('input.txt').readlines():
-    a = [x[6:17]]
-    if x[19] == 'f':
-        a.append(1)
-    elif x[19] == 'w':
-        a.append(0)
+guards = defaultdict(Guard)
+for x in open("/mnt/d/input.txt").readlines():
+    str_datetime = re.search(r"(?<=\[).*(?=\])", x).group()
+    if "Guard" in x:
+        guard_id = int(re.search(r"#\d+", x).group()[1:])
+        guard = Guard(guard_id)
+        guards[guard_id] = guard
     else:
-        a.append(x[26:30])
-    data.append(a)
+        guard = None
+    record = {
+        "time": datetime.strptime(str_datetime, "%Y-%m-%d %H:%M"),
+        "guard": guard,
+        "wake": "wakes" in x,
+        "sleep": "falls" in x,
+    }
+    data.append(record)
 
-data = sorted(data, key= lambda x: datetime.strptime(x[0], '%m-%d %H:%M'))
-d = {}
-for x in data:
-    if int(x[0][6:8]) == 23:
-        key = format(datetime.strptime(x[0], '%m-%d %H:%M') +timedelta(hours=1), '%m-%d')
-    else:
-        key = str(x[0][0:5])    
-    if isinstance(x[1],str):
-        time = np.zeros(60)
-        d.update({key:[x[1],time]})
-    else:
-        for i in range(int(x[0][9:11]),60):            
-            d[key][1][i] = x[1]
+data = sorted(data, key=lambda x: x["time"])
 
-guards = {}
-for i in d:
-    if d[i][0] in guards:
-        guards[d[i][0]] = np.add(guards[d[i][0]],d[i][1])
-    else:
-        guards.update({d[i][0]:d[i][1]})
-maxAs = 0
-keyAs = ''
-for key in guards:
-    if sum(guards[key])>maxAs:
-        maxAs = sum(guards[key])
-        keyAs = key
-
-time = guards[keyAs][0]
-itime= 0
-for i in range(0,60):
-    if guards[keyAs][i] > time:
-        time = guards[keyAs][i]
-        itime = i
-
-print(itime*int(keyAs))
-
-guard = ''
-minute= 0
-maxtime= 0
-for key in guards:
-    for m in range(0,60):
-        if guards[key][m] > maxtime:
-            maxtime = guards[key][m]
-            minute = m
-            guard = key
-
-print(minute*int(guard))
+print(f"Silver: {part_1()}\nGold: {part_2()}")
