@@ -1,32 +1,23 @@
-def reaction(data):
-    i=0
-    end=len(data)
-    while i != end-1:
-        react = False
-        if data[i].isupper():
-            if data[i+1].islower():
-                react = data[i] == data[i+1].upper()
-        else:
-            if data[i+1].isupper():
-                react = data[i].upper() == data[i+1] 
-        if react:
-            data = data[:i]+data[i+2:]
-            end -= 2
-            if i != 0:
-                i -= 1
+def part_1(pol):
+    i = 0
+    while i != len(pol) - 1:
+        if abs(ord(pol[i]) - ord(pol[i + 1])) == 32:
+            pol = pol[:i] + pol[i + 2 :]
+            i = i - 1 if i != 0 else 0
         else:
             i += 1
-    return end
+    return len(pol)
 
 
-data = open('input.txt').readlines()[0]
-print(reaction(data))
+def part_2():
+    shortest = len(data)
+    for i in range(65, 90):
+        polymer = data.replace(str(chr(i)), "").replace(str(chr(i + 32)), "")
+        polymer_length = part_1(polymer)
+        if shortest > polymer_length:
+            shortest = polymer_length
+    return shortest
 
-shortest = len(data)
-for i in range(65,90):
-     polymer = data.replace(str(chr(i)),"").replace(str(chr(i+32)),"")
-     polymerLength = reaction(polymer)
-     if shortest > polymerLength:
-         shortest = polymerLength
 
-print(shortest)
+data = open("/mnt/d/input.txt").read().splitlines()[0]
+print(f"Silver: {part_1(data)}\nGold: {part_2()}")
