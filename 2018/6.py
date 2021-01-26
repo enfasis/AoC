@@ -1,35 +1,32 @@
 import numpy as np
 
-def mdist(x1,y1,x2,y2):
-    return abs(x1-x2) + abs(y1-y2)
 
-data = [list(map(int,line.strip().split(', '))) for line in open('input.txt').readlines()]
-ds = len(data)
-axy= [0]*ds
-s  = 0
+def manhattan_distance(x1, y1, x2, y2):
+    return abs(x1 - x2) + abs(y1 - y2)
 
-xs = [x[0] for x in data]
-ys = [x[1] for x in data]
 
-rs = max(xs)
-cs = max(ys)
-ms = max(rs,cs)+1
+def solve():
+    max_size = max(max(x, y) for x, y in data) + 1
+    areas = [0] * len(data)
+    total = 0
+    for x, y in np.ndindex(max_size, max_size):
+        distances = [manhattan_distance(x, y, a, b) for a, b in data]
+        total += 1 if sum(distances) < 10000 else 0  # part 2
+        min_ind, min_val = min(enumerate(distances), key=lambda v: v[1])
+        areas[min_ind] += 1
+        distances.pop(min_ind)
+        if min_val in distances:
+            areas[min_ind] -= 1
+        if x == 0 or y == 0 or x == max_size - 1 or y == max_size - 1:
+            areas[min_ind] -= max_size
 
-for x in range(0,ms):
-    for y in range(0,ms):
-        d = [mdist(x,y,d[0],d[1]) for d in data]
-        #part 2
-        if sum(d) < 10000:
-            s += 1
-        #part 1
-        md = min(d)
-        idx = d.index(md)
-        axy[idx] += 1
-        d.remove(md)
-        if md in d:
-            axy[idx] -= 1
-        if x == 0 or y == 0 or x == ms-1 or y == ms-1:
-            axy[idx] -= ms
+    return max(areas), total
 
-print(max(axy))
-print(s)
+
+data = [
+    tuple(map(int, line.strip().split(", "))) for line in open("input.txt").readlines()
+]
+
+part_1, part_2 = solve()
+
+print(f"Silver: {part_1}\nGold: {part_2}")
