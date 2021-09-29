@@ -75,4 +75,4 @@ def part_2():
 
 data = [(line[5], line[36]) for line in open("input.txt").readlines()]
 
-print(part_2())
+print(f"Silver: {part_1()}\nGold: {part_2()}")
