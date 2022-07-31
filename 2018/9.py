@@ -1,13 +1,7 @@
-from collections import deque, defaultdict
+from collections import defaultdict, deque
 
 
 def play_game(max_players, last_marble):
-    """
-    I solve this using simple lists, but it is clearly that this
-    problem can be solve with a doublly-linked list and my solution
-    will take too much time to compute. I found another anwser,
-    which is here and it's clear and concise using deque.
-    """
     scores = defaultdict(int)
     circle = deque([0])
 

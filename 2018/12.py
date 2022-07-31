@@ -1,45 +1,45 @@
-def generate(data):
-    data = "...." + data + "...."
-    new_string = ".."
-    for i in range(len(data) - 4):
-        found = False
-        for rule in rules:
-            if data[i : i + 5] == rule[0]:
-                new_string += rule[1]
-                found = True
-                break
-        new_string += "." if not found else ""
-    return new_string + ".."
+from collections import defaultdict
+from re import findall
 
 
-def compute_sum(state, generations):
-    total = 0
-    for i, v in enumerate(state):
-        total += i - generations * 4 if v == "#" else 0
-    return total
+def iterate(curr_state):
+    curr_state = f"....{curr_state}...."
+    new_state = ""
+    for i in range(2, len(curr_state) - 2):
+        new_state += mapping.get(curr_state[i - 2 : i + 3], ".")
+    return f"..{new_state}.."
+
+
+def compute_sum(state, n):
+    return sum(i - n * 4 for i, v in enumerate(state) if v == "#")
 
 
 def part_1():
-    # n = 20
-    # state = initial_state
-    # for _ in range(n):
-    #     state = generate(state)
-    # return compute_sum(state, n)
-    return 1
+    n = 20
+    state = initial
+    for _ in range(n):
+        state = iterate(state)
+    return compute_sum(state, n)
 
 
 def part_2():
-    n = 100
-    state = initial_state
-    for i in range(1, n + 1):
-        state = generate(state)
-        print(i, compute_sum(state, i))
+    N = int(50e9)
+    state = initial
+    prev_sum = 0
+    increment = defaultdict(lambda: 0)
+    for n in range(1, 1000):
+        state = iterate(state)
+        total = compute_sum(state, n)
+        diff = total - prev_sum
 
-    return 2
+        if increment[diff] > 10:
+            return total + diff * (N - n)
+
+        prev_sum = total
+        increment[diff] += 1
 
 
-data = open("/mnt/d/input.txt").read().split("\n\n")
-initial_state = data[0].split(" ")[2]
-rules = [rule.split(" => ") for rule in data[1].split("\n")]
+initial, *pairs = findall(r"[.#]+", open("input.txt").read())
+mapping = dict(zip(pairs[::2], pairs[1::2]))
 
 print(f"Silver: {part_1()}\nGold: {part_2()}")

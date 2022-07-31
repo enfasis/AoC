@@ -34,7 +34,7 @@ def part_1():
 
 
 def part_2():
-    """ Dumb solution """
+    """Dumb solution"""
     childs = defaultdict(list)
     parents = defaultdict(list)
     for (b, a) in data:

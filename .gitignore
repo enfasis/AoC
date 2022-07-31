@@ -6,3 +6,4 @@ tmp/
 *.txt
 .python-version
 mypy_cache/
+_build/
